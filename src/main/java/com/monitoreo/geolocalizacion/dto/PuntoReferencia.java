@@ -19,7 +19,7 @@ public class PuntoReferencia implements Serializable {
      *  Establece la longitud geográfica del punto.
      *
      */
-    private Long longitud;
+    private Double longitud;
     /**
      * -- GETTER --
      *  Obtiene la latitud geográfica del punto.
@@ -27,6 +27,6 @@ public class PuntoReferencia implements Serializable {
      *  Establece la latitud geográfica del punto.
      *
      */
-    private Long latitud;
+    private Double latitud;
 
 }

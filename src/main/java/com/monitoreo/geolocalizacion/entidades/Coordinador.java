@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,4 +30,5 @@ public class Coordinador {
 
     private Double latitud;
     private Double longitud;
+    private LocalDateTime fechaRegistro;
 }
