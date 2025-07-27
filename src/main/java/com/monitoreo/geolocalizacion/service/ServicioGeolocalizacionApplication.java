@@ -1,6 +1,7 @@
 package com.monitoreo.geolocalizacion.service;
 
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
+import com.monitoreo.geolocalizacion.entidades.Coordinador;
 import com.monitoreo.geolocalizacion.rest.ServicioGeolocalizacionRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
@@ -12,13 +13,18 @@ import org.springframework.http.ResponseEntity;
 @RequiredArgsConstructor
 @SpringBootApplication
 public class ServicioGeolocalizacionApplication implements ServicioGeolocalizacionRest {
-
+	/**
+	 * Atributo que determina la instancia de la clase AdministrarCoordinador
+	 */
 	private final AdministrarCoordinador administrarCoordinador;
 
+	/**
+	 * Método princial encargado de iniciar el proyecto
+	 * @param args arreglo de parámetros
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(ServicioGeolocalizacionApplication.class, args);
 	}
-
 	/**
 	 *
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene la información de la ruta a registrar.
@@ -44,5 +50,15 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	@Override
 	public void calcularRuta(ServicioGeolocalizacionInDTO datosIn) {
 
+	}
+
+	/**
+	 *
+	 * @param idVehiculo identificador del vehículo
+	 * @return
+	 */
+	@Override
+	public Coordinador obtenerInformacionRutaPorIdVehiculo(Long idVehiculo) {
+		return administrarCoordinador.obtenerCoordenadasPorIdVehiculo(idVehiculo.toString());
 	}
 }

@@ -2,7 +2,6 @@ package com.monitoreo.geolocalizacion.service;
 
 import com.monitoreo.geolocalizacion.conexiones.RepositorioCoordinador;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
-import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

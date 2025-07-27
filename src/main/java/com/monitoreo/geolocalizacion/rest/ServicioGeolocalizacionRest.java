@@ -1,11 +1,10 @@
 package com.monitoreo.geolocalizacion.rest;
 
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
+import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Clase encargada de definir los servicios
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/coordinates")
 public interface ServicioGeolocalizacionRest {
-
     /**
      * Registra una nueva ruta de geolocalización basada en los datos proporcionados.
      *
@@ -23,7 +21,6 @@ public interface ServicioGeolocalizacionRest {
      */
     @PostMapping("/registrarGeolocalizacion")
     ResponseEntity<String> registrarGeolocalizacion(@RequestBody ServicioGeolocalizacionInDTO datosIn);
-
     /**
      * Calcula la ruta más corta entre dos puntos geográficos especificados en el DTO.
      *
@@ -31,4 +28,15 @@ public interface ServicioGeolocalizacionRest {
      */
     @PostMapping("/calcularRuta")
     void calcularRuta(@RequestBody ServicioGeolocalizacionInDTO datosIn);
+
+    /**
+     * Servicio encargado de obtener la información de las rutas registradas
+     * por vehículo.
+     *
+     * @param idVehiculo identificador del vehículo
+     * @return Coordinador información de la ruta
+     */
+    @ResponseBody
+    @GetMapping("/obtenerInformacionRutaPorIdVehiculo")
+    Coordinador obtenerInformacionRutaPorIdVehiculo(@RequestParam("idVehiculo") Long idVehiculo);
 }
