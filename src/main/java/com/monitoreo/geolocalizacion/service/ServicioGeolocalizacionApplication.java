@@ -16,7 +16,6 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	/**
 	 *
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene la información de la ruta a registrar.
-	 * @return
 	 */
 	@Override
 	public ResponseEntity<String> registrarGeolocalizacion(ServicioGeolocalizacionInDTO datosIn) {

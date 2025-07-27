@@ -22,7 +22,7 @@ public interface ServicioGeolocalizacionRest {
      * @return {@link ResponseEntity} con un mensaje indicando el resultado del registro.
      */
     @PostMapping("/registrarGeolocalizacion")
-    public ResponseEntity<String> registrarGeolocalizacion(@RequestBody ServicioGeolocalizacionInDTO datosIn);
+    ResponseEntity<String> registrarGeolocalizacion(@RequestBody ServicioGeolocalizacionInDTO datosIn);
 
     /**
      * Calcula la ruta más corta entre dos puntos geográficos especificados en el DTO.
@@ -30,5 +30,5 @@ public interface ServicioGeolocalizacionRest {
      * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
      */
     @PostMapping("/calcularRuta")
-    public void calcularRuta(@RequestBody ServicioGeolocalizacionInDTO datosIn);
+    void calcularRuta(@RequestBody ServicioGeolocalizacionInDTO datosIn);
 }
