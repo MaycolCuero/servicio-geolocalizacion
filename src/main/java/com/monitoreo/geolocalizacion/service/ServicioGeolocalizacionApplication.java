@@ -9,8 +9,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 @EnableRedisRepositories(basePackages = "com.monitoreo.geolocalizacion.conexiones")
 @RequiredArgsConstructor
+/**
+ * Clase principal que inicia la aplicación de geolocalización y expone servicios REST para registrar y consultar rutas.
+ */
 @SpringBootApplication
 public class ServicioGeolocalizacionApplication implements ServicioGeolocalizacionRest {
 	/**
@@ -26,8 +31,11 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 		SpringApplication.run(ServicioGeolocalizacionApplication.class, args);
 	}
 	/**
+	 * Registra la geolocalización actual de un vehículo.
+	 * Si no se proporciona ubicación actual, se toma el punto de partida.
 	 *
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene la información de la ruta a registrar.
+	 * @return Respuesta HTTP con estado OK o error interno.
 	 */
 	@Override
 	public ResponseEntity<String> registrarGeolocalizacion(ServicioGeolocalizacionInDTO datosIn) {
@@ -44,6 +52,8 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	}
 
 	/**
+	 * Calcula la ruta entre el punto de partida y el destino.
+	 * (Método pendiente de implementación)
 	 *
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
 	 */
@@ -55,10 +65,21 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	/**
 	 *
 	 * @param idVehiculo identificador del vehículo
-	 * @return
+	 * @return Coordinador información de la última ubicación
 	 */
 	@Override
 	public Coordinador obtenerInformacionRutaPorIdVehiculo(Long idVehiculo) {
 		return administrarCoordinador.obtenerCoordenadasPorIdVehiculo(idVehiculo.toString());
+	}
+
+	/**
+	 * Obtiene el historial completo de coordenadas registradas para un vehículo.
+	 *
+	 * @param idVehiculo Identificador único del vehículo.
+	 * @return Lista de coordenadas históricas.
+	 */
+	@Override
+	public List<Coordinador> obtenerHistorialRutasPorIdVehiculo(Long idVehiculo) {
+		return this.administrarCoordinador.obtenerHistorialCoordenadas(idVehiculo.toString());
 	}
 }

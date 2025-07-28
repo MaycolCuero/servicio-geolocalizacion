@@ -3,30 +3,45 @@ package com.monitoreo.geolocalizacion.service;
 import com.monitoreo.geolocalizacion.conexiones.RepositorioCoordinador;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
- * Servicio encargado de administrar la información de coordenadas asociadas a vehículos.
- * Este servicio interactúa con Redis a través del repositorio correspondiente para
- * guardar y recuperar información de geolocalización.
+ * Clase de servicio que gestiona las coordenadas de ubicación de vehículos.
+ * Permite guardar y recuperar información de localización usando Redis.
  */
 @Service
 @RequiredArgsConstructor
 public class AdministrarCoordinador {
-
     /**
      * Repositorio para realizar operaciones CRUD sobre la entidad Coordinador en Redis.
      */
     private final RepositorioCoordinador repositorio;
+    /**
+     * Plantilla para realizar operaciones directas sobre Redis en formato String.
+     */
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+    /**
+     * Utilidad para convertir objetos Java a JSON y viceversa.
+     */
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
-     * Guarda en Redis la información de ubicación (coordenadas) de un vehículo.
+     * Guarda la coordenada actual del vehículo tanto en el repositorio como en una estructura
+     * de conjunto ordenado (Sorted Set) en Redis.
      *
-     * @param datosIn   Objeto que contiene la latitud y longitud del vehículo.
+     * @param datosIn Objeto que contiene latitud y longitud de la ubicación actual.
      * @param idVehiculo Identificador único del vehículo.
      */
     public void guardarCoordenadaEnRedis(PuntoReferencia datosIn, String idVehiculo ) {
@@ -34,18 +49,56 @@ public class AdministrarCoordinador {
                 .idVehiculo(idVehiculo)
                 .longitud(datosIn.getLongitud())
                 .latitud(datosIn.getLatitud())
-                .fechaRegistro(LocalDateTime.now())
                 .build();
+
+        // Store the latest location (overwrites previous)
         repositorio.save(coordinador);
+
+        /*
+            Se utiliza Redis Sorted Set para almacenar los registros de forma que no
+            permita datos repetidos
+         */
+        try {
+            String jsonValue = objectMapper.writeValueAsString(coordinador);
+            double idscore = coordinador.getLatitud()+coordinador.getLatitud();
+            redisTemplate.opsForZSet().add("veh:" + idVehiculo + ":coords", jsonValue, idscore);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Obtiene las coordenadas almacenadas en Redis asociadas a un vehículo, mediante su ID.
+     * Recupera la última coordenada registrada del vehículo desde Redis.
      *
-     * @param idVehiculo Identificador único del vehículo.
-     * @return Instancia de Coordinador con la información encontrada, o null si no existe.
+     * @param idVehiculo Identificador del vehículo.
+     * @return Coordenada más reciente almacenada en Redis o null si no se encuentra.
      */
     public Coordinador obtenerCoordenadasPorIdVehiculo(String idVehiculo) {
         return repositorio.findById(idVehiculo).orElse(null) ;
+    }
+
+    /**
+     * Recupera todas las coordenadas registradas de un vehículo desde el conjunto ordenado de Redis.
+     *
+     * @param idVehiculo Identificador del vehículo.
+     * @return Lista de coordenadas históricas asociadas al vehículo.
+     */
+    public List<Coordinador> obtenerHistorialCoordenadas(String idVehiculo) {
+        Set<String> jsonValues = redisTemplate.opsForZSet()
+            .range("veh:" + idVehiculo + ":coords", 0, -1);
+
+        if (jsonValues == null) return Collections.emptyList();
+
+        return jsonValues.stream()
+            .map(json -> {
+                try {
+                    return objectMapper.readValue(json, Coordinador.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 }
