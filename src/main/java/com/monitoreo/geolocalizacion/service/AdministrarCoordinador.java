@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -50,10 +51,6 @@ public class AdministrarCoordinador {
                 .longitud(datosIn.getLongitud())
                 .latitud(datosIn.getLatitud())
                 .build();
-
-        // Store the latest location (overwrites previous)
-        repositorio.save(coordinador);
-
         /*
             Se utiliza Redis Sorted Set para almacenar los registros de forma que no
             permita datos repetidos
@@ -61,7 +58,10 @@ public class AdministrarCoordinador {
         try {
             String jsonValue = objectMapper.writeValueAsString(coordinador);
             double idscore = coordinador.getLatitud()+coordinador.getLatitud();
+            // Se guarda la información de las rutas sin repeticiones
             redisTemplate.opsForZSet().add("veh:" + idVehiculo + ":coords", jsonValue, idscore);
+            // Se declara el TTL (Time to live) de 5 minutos
+            redisTemplate.expire("veh:" + idVehiculo + ":coords", 5, TimeUnit.MINUTES);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
