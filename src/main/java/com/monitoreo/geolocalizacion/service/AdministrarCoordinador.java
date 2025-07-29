@@ -1,10 +1,13 @@
 package com.monitoreo.geolocalizacion.service;
 
 import com.monitoreo.geolocalizacion.conexiones.RepositorioCoordinador;
+import com.monitoreo.geolocalizacion.conexiones.RepositorioRutaCorta;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
+import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.monitoreo.geolocalizacion.entidades.RutasCalculadas;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,6 +30,8 @@ public class AdministrarCoordinador {
      * Repositorio para realizar operaciones CRUD sobre la entidad Coordinador en Redis.
      */
     private final RepositorioCoordinador repositorio;
+
+    private final RepositorioRutaCorta respositorioRutaCorta;
     /**
      * Plantilla para realizar operaciones directas sobre Redis en formato String.
      */
@@ -99,5 +104,30 @@ public class AdministrarCoordinador {
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
+    }
+
+    public void guardarRutasCalculadas(ServicioGeolocalizacionInDTO datosIn, List<PuntoReferencia> rutaCorta) {
+        RutasCalculadas ruta = new RutasCalculadas();
+        ruta.setIdVehiculo(datosIn.getIdVehiculo().toString());
+        ruta.setPuntoPartida(datosIn.getPuntoPartida());
+        ruta.setPuntoLlegada(datosIn.getPuntoLlegada());
+        ruta.setRutaCorta(rutaCorta);
+        respositorioRutaCorta.save(ruta);
+        try{
+            String jsonValue = objectMapper.writeValueAsString(ruta);
+            redisTemplate.opsForSet().add(datosIn.getIdVehiculo().toString(),jsonValue);
+            String keyPorReferencia = this.crearkeyReferencia(datosIn);
+            redisTemplate.opsForSet().add(keyPorReferencia, datosIn.getIdVehiculo().toString());
+        } catch (JsonProcessingException e){
+
+        }
+
+    }
+
+    public String crearkeyReferencia(ServicioGeolocalizacionInDTO datosIn) {
+        return String.valueOf(datosIn.getPuntoPartida().getLatitud()) +
+                datosIn.getPuntoPartida().getLongitud() +
+                datosIn.getPuntoLlegada().getLatitud() +
+                datosIn.getPuntoLlegada().getLongitud();
     }
 }
