@@ -69,7 +69,6 @@ public class AdministrarCoordinador {
 
     /**
      * Recupera la última coordenada registrada del vehículo desde Redis.
-     *
      * @param idVehiculo Identificador del vehículo.
      * @return Coordenada más reciente almacenada en Redis o null si no se encuentra.
      */

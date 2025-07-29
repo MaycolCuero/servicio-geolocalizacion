@@ -1,7 +1,9 @@
 package com.monitoreo.geolocalizacion.service;
 
+import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.rest.CalculadorRutaAEstrella;
 import com.monitoreo.geolocalizacion.rest.ServicioGeolocalizacionRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
@@ -58,8 +60,11 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
 	 */
 	@Override
-	public void calcularRuta(ServicioGeolocalizacionInDTO datosIn) {
-
+	public List<PuntoReferencia> servicioRuteo(ServicioGeolocalizacionInDTO datosIn) {
+		// se cálcula la ruta mas corta entre dos puntos
+		CalculadorRutaAEstrella calcularRutaEstrella = new CalculadorRutaAEstrella();
+		List<PuntoReferencia> rutaMasCorta = calcularRutaEstrella.calcularRuta(datosIn.getPuntoPartida(), datosIn.getPuntoLlegada());
+		return rutaMasCorta;
 	}
 
 	/**

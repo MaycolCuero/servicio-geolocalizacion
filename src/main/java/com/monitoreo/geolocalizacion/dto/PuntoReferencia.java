@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Representa un punto geográfico con coordenadas de latitud y longitud.
@@ -29,4 +30,26 @@ public class PuntoReferencia implements Serializable {
      */
     private Double latitud;
 
+    public PuntoReferencia() {
+
+    }
+
+    public PuntoReferencia(Double longitud,Double latitud ) {
+        this.longitud = longitud;
+        this.latitud = latitud;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PuntoReferencia)) return false;
+        PuntoReferencia p = (PuntoReferencia) o;
+        return Double.compare(p.latitud, latitud) == 0 &&
+                Double.compare(p.longitud, longitud) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitud, longitud);
+    }
 }

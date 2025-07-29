@@ -1,5 +1,6 @@
 package com.monitoreo.geolocalizacion.rest;
 
+import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
 import jakarta.websocket.server.PathParam;
@@ -28,8 +29,9 @@ public interface ServicioGeolocalizacionRest {
      *
      * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
      */
-    @PostMapping("/calcularRuta")
-    void calcularRuta(@RequestBody ServicioGeolocalizacionInDTO datosIn);
+    @ResponseBody
+    @PostMapping("/servicioRuteo")
+    List<PuntoReferencia> servicioRuteo(@RequestBody ServicioGeolocalizacionInDTO datosIn);
 
     /**
      * Servicio encargado de obtener la información de las rutas registradas
