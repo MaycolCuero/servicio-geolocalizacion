@@ -47,10 +47,10 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 			else
 				this.administrarCoordinador.guardarCoordenadaEnRedis(datosIn.getUbicacionActual(), datosIn.getIdVehiculo().toString());
 		} catch (Exception e) {
-			ResponseEntity.status(500)
-					.body("Error al guardar la inforación {} " + e.getMessage());
+			return ResponseEntity.status(500)
+					.body("Error al guardar la información: " + e.getMessage());
 		}
-		return ResponseEntity.ok("Información guardad") ;
+		return ResponseEntity.status(201).body("Información guardada");
 	}
 
 	/**
@@ -60,11 +60,17 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	 * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
 	 */
 	@Override
-	public List<PuntoReferencia> servicioRuteo(ServicioGeolocalizacionInDTO datosIn) {
-		// se cálcula la ruta mas corta entre dos puntos
+	public ResponseEntity<String>  servicioRuteo(ServicioGeolocalizacionInDTO datosIn) {
+		// Se valida si ya exíste un registro para esa coordenada con otro vehículo
+		String keyPuntoReferencia = this.administrarCoordinador.crearkeyReferencia(datosIn);
+		String keyReferenciaGuardada = this.administrarCoordinador.obtenerKeyReferencia(keyPuntoReferencia);
+		if(keyReferenciaGuardada != null && !keyReferenciaGuardada.equals(datosIn.getIdVehiculo().toString()))
+			return ResponseEntity.status(409).body("Vehículo " + datosIn.getIdVehiculo() + " no se puede procesar tu solicitud porque ya existe un vehiculo en esta ruta");
+		// se calcula la ruta más corta entre dos puntos
 		CalculadorRutaAEstrella calcularRutaEstrella = new CalculadorRutaAEstrella();
 		List<PuntoReferencia> rutaMasCorta = calcularRutaEstrella.calcularRuta(datosIn.getPuntoPartida(), datosIn.getPuntoLlegada());
-		return rutaMasCorta;
+		this.administrarCoordinador.guardarRutasCalculadas(datosIn, rutaMasCorta);
+		return ResponseEntity.status(201).body("Registro guardado");
 	}
 
 	/**

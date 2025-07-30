@@ -29,9 +29,8 @@ public interface ServicioGeolocalizacionRest {
      *
      * @param datosIn Objeto {@link ServicioGeolocalizacionInDTO} que contiene los puntos de inicio y destino.
      */
-    @ResponseBody
     @PostMapping("/servicioRuteo")
-    List<PuntoReferencia> servicioRuteo(@RequestBody ServicioGeolocalizacionInDTO datosIn);
+    ResponseEntity<String> servicioRuteo(@RequestBody ServicioGeolocalizacionInDTO datosIn);
 
     /**
      * Servicio encargado de obtener la información de las rutas registradas

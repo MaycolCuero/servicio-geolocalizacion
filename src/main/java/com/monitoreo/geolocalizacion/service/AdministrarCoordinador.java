@@ -130,4 +130,10 @@ public class AdministrarCoordinador {
                 datosIn.getPuntoLlegada().getLatitud() +
                 datosIn.getPuntoLlegada().getLongitud();
     }
+
+    public String obtenerKeyReferencia(String idKeyReferencia) {
+        Set<String> setKey = this.redisTemplate.opsForSet().members(idKeyReferencia);
+        if(setKey.isEmpty()) return null;
+        return setKey.stream().findFirst().orElse(null);
+    }
 }
