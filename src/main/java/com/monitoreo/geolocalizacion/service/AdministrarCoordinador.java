@@ -1,7 +1,6 @@
 package com.monitoreo.geolocalizacion.service;
 
 import com.monitoreo.geolocalizacion.conexiones.RepositorioCoordinador;
-import com.monitoreo.geolocalizacion.conexiones.RepositorioRutaCorta;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -30,8 +27,6 @@ public class AdministrarCoordinador {
      * Repositorio para realizar operaciones CRUD sobre la entidad Coordinador en Redis.
      */
     private final RepositorioCoordinador repositorio;
-
-    private final RepositorioRutaCorta respositorioRutaCorta;
     /**
      * Plantilla para realizar operaciones directas sobre Redis en formato String.
      */
@@ -106,24 +101,39 @@ public class AdministrarCoordinador {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Guarda una ruta calculada en Redis, asociando el vehículo con su ruta más corta y los puntos de partida y llegada.
+     * Se almacena el JSON de la ruta bajo dos claves:
+     * - Una clave basada en el ID del vehículo.
+     * - Una clave construida a partir de las coordenadas de partida y llegada.
+     *
+     * @param datosIn Objeto que contiene el ID del vehículo y los puntos de partida y llegada.
+     * @param rutaCorta Lista de puntos que representan la ruta más corta calculada.
+     */
     public void guardarRutasCalculadas(ServicioGeolocalizacionInDTO datosIn, List<PuntoReferencia> rutaCorta) {
         RutasCalculadas ruta = new RutasCalculadas();
         ruta.setIdVehiculo(datosIn.getIdVehiculo().toString());
         ruta.setPuntoPartida(datosIn.getPuntoPartida());
         ruta.setPuntoLlegada(datosIn.getPuntoLlegada());
         ruta.setRutaCorta(rutaCorta);
-        respositorioRutaCorta.save(ruta);
         try{
             String jsonValue = objectMapper.writeValueAsString(ruta);
             redisTemplate.opsForSet().add(datosIn.getIdVehiculo().toString(),jsonValue);
             String keyPorReferencia = this.crearkeyReferencia(datosIn);
             redisTemplate.opsForSet().add(keyPorReferencia, datosIn.getIdVehiculo().toString());
         } catch (JsonProcessingException e){
-
+            e.printStackTrace();
         }
 
     }
 
+    /**
+     * Crea una clave única basada en las coordenadas del punto de partida y llegada.
+     * Esta clave se usa para indexar rutas previamente calculadas.
+     *
+     * @param datosIn Objeto con información de entrada de geolocalización.
+     * @return Clave única generada a partir de las coordenadas de inicio y destino.
+     */
     public String crearkeyReferencia(ServicioGeolocalizacionInDTO datosIn) {
         return String.valueOf(datosIn.getPuntoPartida().getLatitud()) +
                 datosIn.getPuntoPartida().getLongitud() +
@@ -131,6 +141,12 @@ public class AdministrarCoordinador {
                 datosIn.getPuntoLlegada().getLongitud();
     }
 
+    /**
+     * Obtiene el primer ID de vehículo asociado a una clave de referencia generada a partir de las coordenadas.
+     *
+     * @param idKeyReferencia Clave generada a partir de las coordenadas de inicio y fin.
+     * @return El ID del primer vehículo encontrado en el conjunto Redis o null si no existe.
+     */
     public String obtenerKeyReferencia(String idKeyReferencia) {
         Set<String> setKey = this.redisTemplate.opsForSet().members(idKeyReferencia);
         if(setKey.isEmpty()) return null;
