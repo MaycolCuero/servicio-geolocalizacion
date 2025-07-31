@@ -1,9 +1,7 @@
 package com.monitoreo.geolocalizacion.rest;
 
-import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
-import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

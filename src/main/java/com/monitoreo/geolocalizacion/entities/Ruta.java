@@ -21,11 +21,10 @@ public class Ruta {
     @ManyToOne
     @JoinColumn(name = "vehiculo_id")
     private Vehiculo vehiculo;
-
-    private String puntoPartida;
-    private String puntoDestino;
+    @Column(name = "estado")
     private String estado;
-
+    @Column(name = "fecha_inicio")
     private LocalDateTime fechaInicio;
+    @Column(name = "fecha_fin")
     private LocalDateTime fechaFin;
 }

@@ -25,5 +25,9 @@ public class Coordenada {
     private double latitud;
     private double longitud;
 
+    @ManyToOne
+    @JoinColumn(name = "ruta_id")
+    private Ruta ruta;
+
     private LocalDateTime timestamp;
 }

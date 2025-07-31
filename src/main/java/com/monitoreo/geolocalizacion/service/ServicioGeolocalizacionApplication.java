@@ -1,16 +1,27 @@
 package com.monitoreo.geolocalizacion.service;
 
+import com.monitoreo.geolocalizacion.dto.HistorialRutaInDTO;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
+import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.entities.Coordenada;
+import com.monitoreo.geolocalizacion.entities.Ruta;
+import com.monitoreo.geolocalizacion.entities.Vehiculo;
+import com.monitoreo.geolocalizacion.enums.EstadoRutaEnum;
+import com.monitoreo.geolocalizacion.enums.TipoCoordenadaEnum;
 import com.monitoreo.geolocalizacion.rest.CalculadorRutaAEstrella;
 import com.monitoreo.geolocalizacion.rest.ServicioGeolocalizacionRest;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.http.ResponseEntity;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @EnableRedisRepositories(basePackages = "com.monitoreo.geolocalizacion.conexiones")
@@ -24,6 +35,11 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	 * Atributo que determina la instancia de la clase AdministrarCoordinador
 	 */
 	private final AdministrarCoordinador administrarCoordinador;
+	/**
+	 * Atributo encargado de instancias el entityManager
+	 */
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	/**
 	 * Método princial encargado de iniciar el proyecto
@@ -92,5 +108,49 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	@Override
 	public List<Coordinador> obtenerHistorialRutasPorIdVehiculo(Long idVehiculo) {
 		return this.administrarCoordinador.obtenerHistorialCoordenadas(idVehiculo.toString());
+	}
+
+	public void guardarRuta(RutaDTO datosIn) {
+		Ruta ruta;
+		if(datosIn.getIdRuta() == null)
+			ruta = new Ruta();
+		else
+			ruta = this.entityManager.find(Ruta.class, datosIn.getIdRuta());
+		Vehiculo vehiculo = new Vehiculo();
+		vehiculo.setId(datosIn.getIdVehiculo());
+		ruta.setVehiculo(vehiculo);
+		ruta.setEstado(datosIn.getEstado().name());
+		if(EstadoRutaEnum.FINALIZADO.equals(datosIn.getEstado()))
+			ruta.setFechaFin(LocalDateTime.now());
+		if(EstadoRutaEnum.INICIADO.equals(datosIn.getEstado()))
+			ruta.setFechaInicio(LocalDateTime.now());
+		this.entityManager.merge(ruta);
+		if(datosIn.getPuntoPartida() != null)
+			this.guardarCoordenada(ruta, datosIn.getPuntoPartida(), TipoCoordenadaEnum.PUNTO_PARTIDA.name());
+		else if(datosIn.getPuntoLlegada() != null)
+			this.guardarCoordenada(ruta, datosIn.getPuntoLlegada(), TipoCoordenadaEnum.PUNTO_LLEGADA.name());
+	}
+
+	private void guardarCoordenada(Ruta ruta,PuntoReferencia puntoReferencia, String tipoCoordenada) {
+		Coordenada coordenada = new Coordenada();
+		coordenada.setRuta(ruta);
+		coordenada.setLatitud(puntoReferencia.getLatitud());
+		coordenada.setLongitud(puntoReferencia.getLongitud());
+		this.entityManager.persist(coordenada);
+	}
+
+	public void guardarUbicacionActual(ServicioGeolocalizacionInDTO datosIn) {
+		Coordenada coordenada = new Coordenada();
+		Vehiculo vehiculo = new Vehiculo();
+		vehiculo.setId(datosIn.getIdVehiculo());
+		coordenada.setVehiculo(vehiculo);
+		coordenada.setLatitud(datosIn.getUbicacionActual().getLatitud());
+		coordenada.setLongitud(datosIn.getUbicacionActual().getLongitud());
+		coordenada.setTimestamp(LocalDateTime.now());
+		this.entityManager.persist(coordenada);
+	}
+
+	public void guardarAlerta(RutaDTO datosIn) {
+
 	}
 }

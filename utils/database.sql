@@ -17,8 +17,6 @@ CREATE TABLE vehiculo (
 CREATE TABLE ruta (
     id SERIAL PRIMARY KEY,
     vehiculo_id INT REFERENCES vehiculo(id),
-    punto_partida VARCHAR(255),
-    punto_destino VARCHAR(255),
     estado VARCHAR(30),
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP
@@ -28,10 +26,13 @@ CREATE TABLE ruta (
 CREATE TABLE coordenada (
     id SERIAL PRIMARY KEY,
     vehiculo_id INT REFERENCES vehiculo(id),
+    ruta_id IN REFERENCES ruta(id),
     latitud DOUBLE PRECISION,
     longitud DOUBLE PRECISION,
-    timestamp TIMESTAMP DEFAULT NOW()
+    tipo_coordenada VARCHAR(30),
+    fecha_creacion TIMESTAMP DEFAULT NOW()
 );
+
 
 -- Alerta
 CREATE TABLE alerta (
@@ -41,3 +42,16 @@ CREATE TABLE alerta (
     mensaje TEXT,
     fecha TIMESTAMP DEFAULT NOW()
 );
+
+-- Se insetan los datos de los tipos de vehículos
+INSERT INTO tipo_vehiculo (nombre) VALUES
+('SEDAN'),
+('SUV'),
+('HATCHBACK'),
+('COUPE'),
+('CONVERTIBLE'),
+('PICKUP'),
+('VAN'),
+('MINIVAN'),
+('STATION_WAGON'),
+('SPORTS_CAR');
