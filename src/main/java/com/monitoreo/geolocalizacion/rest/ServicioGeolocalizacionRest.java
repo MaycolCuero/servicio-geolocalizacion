@@ -81,4 +81,11 @@ public interface ServicioGeolocalizacionRest {
      */
     @PostMapping("/guardarVehiculo")
     Long guardarVehiculo(@RequestBody VehiculoDTO datosIn);
+
+    /**
+     * Método encarga de eliminar un vehiculo de los registros
+     * @param idVehiculo identificador del vehículo
+     */
+    @DeleteMapping("/eliminarVehiculo")
+    void eliminarVehiculo(@RequestParam("idVehiculo") Long idVehiculo);
 }

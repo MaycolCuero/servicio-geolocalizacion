@@ -115,6 +115,7 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	 * @param datosIn DTO con los datos de la ruta, incluyendo punto de partida, llegada y ubicación actual.
 	 * @return ID de la ruta guardada.
 	 */
+	@Override
 	@Transactional
 	public Long guardarRuta(RutaDTO datosIn) {
 		Ruta ruta;
@@ -170,6 +171,7 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
      *
      * @param datosIn Objeto {@link RutaDTO} con la información necesaria para generar una alerta.
      */
+	@Override
 	@Transactional
     public void guardarAlerta(AlertaInDTO datosIn) {
 		Vehiculo vehiculo = new Vehiculo();
@@ -187,18 +189,16 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	 *
 	 * @param idVehiculo ID del vehículo a eliminar.
 	 */
+	@Override
 	@Transactional
 	public void eliminarVehiculo(Long idVehiculo) {
-		try{
-			// this.entityManager.op
-			this.entityManager.createQuery("DELETE FROM Vehiculo vh WHERE vh.id = :idVehiculo")
+		this.entityManager.createQuery("DELETE FROM Vehiculo vh WHERE vh.id = :idVehiculo")
 					.setParameter("idVehiculo",idVehiculo)
 					.executeUpdate();
-		} catch(Exception e){
-			e.printStackTrace();
-		}
+		this.administrarCoordinador.eliminarVehiculo(idVehiculo.toString());
 	}
 
+	@Override
 	@Transactional
 	public Long guardarVehiculo(VehiculoDTO datosIn) {
 		Vehiculo vehiculo = new Vehiculo();
