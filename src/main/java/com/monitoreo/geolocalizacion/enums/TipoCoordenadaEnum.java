@@ -3,5 +3,6 @@ package com.monitoreo.geolocalizacion.enums;
 public enum TipoCoordenadaEnum {
     PUNTO_PARTIDA,
     EN_CAMINO,
-    PUNTO_LLEGADA
+    PUNTO_LLEGADA,
+    EN_ESPERA,
 }

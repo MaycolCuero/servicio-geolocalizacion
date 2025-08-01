@@ -1,5 +1,6 @@
 package com.monitoreo.geolocalizacion.rest;
 
+import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
 import org.springframework.http.ResponseEntity;
@@ -50,4 +51,16 @@ public interface ServicioGeolocalizacionRest {
     @ResponseBody
     @GetMapping("/obtenerHistorialRutasPorIdVehiculo")
     List<Coordinador> obtenerHistorialRutasPorIdVehiculo(@RequestParam("idVehiculo") Long idVehiculo);
+
+    /**
+     * {@inheritDoc}
+     * Implementación del método definido en {@link ServicioGeolocalizacionRest}.
+     * Este método guarda o actualiza la información de una ruta y su respectiva coordenada asociada.
+     *
+     * @param datosIn DTO con los datos de la ruta, incluyendo punto de partida, llegada y ubicación actual.
+     * @return ID de la ruta guardada.
+     */
+    @ResponseBody
+    @PostMapping("/guardarRuta")
+    Long guardarRuta(@RequestBody RutaDTO datosIn);
 }

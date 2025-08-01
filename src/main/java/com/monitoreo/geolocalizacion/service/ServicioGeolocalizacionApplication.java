@@ -1,6 +1,5 @@
 package com.monitoreo.geolocalizacion.service;
 
-import com.monitoreo.geolocalizacion.dto.HistorialRutaInDTO;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
@@ -17,10 +16,11 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,6 +29,7 @@ import java.util.List;
 /**
  * Clase principal que inicia la aplicación de geolocalización y expone servicios REST para registrar y consultar rutas.
  */
+@EntityScan(basePackages = "com.monitoreo.geolocalizacion.entities")
 @SpringBootApplication
 public class ServicioGeolocalizacionApplication implements ServicioGeolocalizacionRest {
 	/**
@@ -42,7 +43,7 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 	private EntityManager entityManager;
 
 	/**
-	 * Método princial encargado de iniciar el proyecto
+	 * Método principal encargado de iniciar el proyecto
 	 * @param args arreglo de parámetros
 	 */
 	public static void main(String[] args) {
@@ -110,7 +111,16 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 		return this.administrarCoordinador.obtenerHistorialCoordenadas(idVehiculo.toString());
 	}
 
-	public void guardarRuta(RutaDTO datosIn) {
+	/**
+	 * {@inheritDoc}
+	 * Implementación del método definido en {@link ServicioGeolocalizacionRest}.
+	 * Este método guarda o actualiza la información de una ruta y su respectiva coordenada asociada.
+	 *
+	 * @param datosIn DTO con los datos de la ruta, incluyendo punto de partida, llegada y ubicación actual.
+	 * @return ID de la ruta guardada.
+	 */
+	@Transactional
+	public Long guardarRuta(RutaDTO datosIn) {
 		Ruta ruta;
 		if(datosIn.getIdRuta() == null)
 			ruta = new Ruta();
@@ -124,33 +134,47 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 			ruta.setFechaFin(LocalDateTime.now());
 		if(EstadoRutaEnum.INICIADO.equals(datosIn.getEstado()))
 			ruta.setFechaInicio(LocalDateTime.now());
-		this.entityManager.merge(ruta);
-		if(datosIn.getPuntoPartida() != null)
+		// Se guarda o actualiza la información de la ruta
+		if(datosIn.getIdRuta() == null)
+			this.entityManager.persist(ruta);
+		else
+			this.entityManager.merge(ruta);
+		// Se guarda la información de la coordenada
+		if(EstadoRutaEnum.INICIADO.equals(datosIn.getEstado()))
 			this.guardarCoordenada(ruta, datosIn.getPuntoPartida(), TipoCoordenadaEnum.PUNTO_PARTIDA.name());
-		else if(datosIn.getPuntoLlegada() != null)
+		else if(EstadoRutaEnum.FINALIZADO.equals(datosIn.getEstado()))
 			this.guardarCoordenada(ruta, datosIn.getPuntoLlegada(), TipoCoordenadaEnum.PUNTO_LLEGADA.name());
+		else if(EstadoRutaEnum.EN_CURSO.equals(datosIn.getEstado()))
+			this.guardarCoordenada(ruta, datosIn.getUbicacionActual(), TipoCoordenadaEnum.EN_CAMINO.name());
+		else
+			this.guardarCoordenada(ruta, datosIn.getUbicacionActual(), TipoCoordenadaEnum.EN_ESPERA.name());
+		return ruta.getId();
 	}
 
+	/**
+	 * Guarda una coordenada asociada a una ruta específica.
+	 *
+	 * @param ruta Instancia de la ruta a la que pertenece la coordenada.
+	 * @param puntoReferencia Objeto con los datos de latitud y longitud.
+	 * @param tipoCoordenada Tipo de coordenada (PUNTO_PARTIDA, PUNTO_LLEGADA, etc.).
+	 */
+	@Transactional
 	private void guardarCoordenada(Ruta ruta,PuntoReferencia puntoReferencia, String tipoCoordenada) {
 		Coordenada coordenada = new Coordenada();
 		coordenada.setRuta(ruta);
 		coordenada.setLatitud(puntoReferencia.getLatitud());
 		coordenada.setLongitud(puntoReferencia.getLongitud());
+		coordenada.setTipoCoordenada(tipoCoordenada);
 		this.entityManager.persist(coordenada);
 	}
 
-	public void guardarUbicacionActual(ServicioGeolocalizacionInDTO datosIn) {
-		Coordenada coordenada = new Coordenada();
-		Vehiculo vehiculo = new Vehiculo();
-		vehiculo.setId(datosIn.getIdVehiculo());
-		coordenada.setVehiculo(vehiculo);
-		coordenada.setLatitud(datosIn.getUbicacionActual().getLatitud());
-		coordenada.setLongitud(datosIn.getUbicacionActual().getLongitud());
-		coordenada.setTimestamp(LocalDateTime.now());
-		this.entityManager.persist(coordenada);
-	}
+    /**
+     * Guarda una alerta relacionada con una ruta específica.
+     * (Método pendiente de implementación).
+     *
+     * @param datosIn Objeto {@link RutaDTO} con la información necesaria para generar una alerta.
+     */
+    public void guardarAlerta(RutaDTO datosIn) {
 
-	public void guardarAlerta(RutaDTO datosIn) {
-
-	}
+    }
 }

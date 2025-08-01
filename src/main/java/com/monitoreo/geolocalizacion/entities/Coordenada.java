@@ -28,6 +28,5 @@ public class Coordenada {
     @ManyToOne
     @JoinColumn(name = "ruta_id")
     private Ruta ruta;
-
-    private LocalDateTime timestamp;
+    private String tipoCoordenada;
 }

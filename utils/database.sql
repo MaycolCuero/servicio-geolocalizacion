@@ -26,7 +26,7 @@ CREATE TABLE ruta (
 CREATE TABLE coordenada (
     id SERIAL PRIMARY KEY,
     vehiculo_id INT REFERENCES vehiculo(id),
-    ruta_id IN REFERENCES ruta(id),
+    ruta_id INT REFERENCES ruta(id),
     latitud DOUBLE PRECISION,
     longitud DOUBLE PRECISION,
     tipo_coordenada VARCHAR(30),
