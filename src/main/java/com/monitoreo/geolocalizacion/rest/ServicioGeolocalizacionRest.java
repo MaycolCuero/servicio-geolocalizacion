@@ -3,7 +3,8 @@ package com.monitoreo.geolocalizacion.rest;
 import com.monitoreo.geolocalizacion.dto.AlertaInDTO;
 import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
-import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.dto.VehiculoDTO;
+import com.monitoreo.geolocalizacion.entities.Coordinador;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,4 +72,13 @@ public interface ServicioGeolocalizacionRest {
      */
     @PostMapping("/guardarAlerta")
     void guardarAlerta(@RequestBody AlertaInDTO datosIn);
+
+    /**
+     * Método ecargado de almacenar la información de un vehiculo.
+     * @param datosIn DTO con los datos necesarios para crear el registro de un
+     *                vehículo
+     * @return Long identificador del registro creado
+     */
+    @PostMapping("/guardarVehiculo")
+    Long guardarVehiculo(@RequestBody VehiculoDTO datosIn);
 }

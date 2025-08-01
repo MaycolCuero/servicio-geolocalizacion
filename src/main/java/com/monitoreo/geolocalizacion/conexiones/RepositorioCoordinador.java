@@ -1,6 +1,6 @@
 package com.monitoreo.geolocalizacion.conexiones;
 
-import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.entities.Coordinador;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

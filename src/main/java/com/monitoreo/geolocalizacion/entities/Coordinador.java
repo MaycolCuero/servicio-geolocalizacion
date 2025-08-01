@@ -1,4 +1,4 @@
-package com.monitoreo.geolocalizacion.entidades;
+package com.monitoreo.geolocalizacion.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

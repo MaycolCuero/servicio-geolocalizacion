@@ -10,13 +10,13 @@ CREATE TABLE vehiculo (
     nombre VARCHAR(100),
     marca VARCHAR(50),
     modelo VARCHAR(50),
-    tipo_vehiculo_id INT REFERENCES tipo_vehiculo(id)
+    tipo_vehiculo_id INT REFERENCES tipo_vehiculo(id) ON DELETE CASCADE
 );
 
 -- Ruta
 CREATE TABLE ruta (
     id SERIAL PRIMARY KEY,
-    vehiculo_id INT REFERENCES vehiculo(id),
+    vehiculo_id INT REFERENCES vehiculo(id) ON DELETE CASCADE,
     estado VARCHAR(30),
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP
@@ -25,19 +25,18 @@ CREATE TABLE ruta (
 -- Coordenada
 CREATE TABLE coordenada (
     id SERIAL PRIMARY KEY,
-    vehiculo_id INT REFERENCES vehiculo(id),
-    ruta_id INT REFERENCES ruta(id),
+    vehiculo_id INT REFERENCES vehiculo(id) ON DELETE CASCADE,
+    ruta_id INT REFERENCES ruta(id) ON DELETE CASCADE,
     latitud DOUBLE PRECISION,
     longitud DOUBLE PRECISION,
     tipo_coordenada VARCHAR(30),
     fecha_creacion TIMESTAMP DEFAULT NOW()
 );
 
-
 -- Alerta
 CREATE TABLE alerta (
     id SERIAL PRIMARY KEY,
-    vehiculo_id INT REFERENCES vehiculo(id),
+    vehiculo_id INT REFERENCES vehiculo(id) ON DELETE CASCADE,
     tipo VARCHAR(50),
     mensaje TEXT,
     fecha TIMESTAMP DEFAULT NOW()

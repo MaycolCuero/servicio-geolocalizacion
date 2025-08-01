@@ -1,14 +1,8 @@
 package com.monitoreo.geolocalizacion.service;
 
-import com.monitoreo.geolocalizacion.dto.AlertaInDTO;
-import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
-import com.monitoreo.geolocalizacion.dto.RutaDTO;
-import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
-import com.monitoreo.geolocalizacion.entidades.Coordinador;
-import com.monitoreo.geolocalizacion.entities.Alerta;
-import com.monitoreo.geolocalizacion.entities.Coordenada;
-import com.monitoreo.geolocalizacion.entities.Ruta;
-import com.monitoreo.geolocalizacion.entities.Vehiculo;
+import com.monitoreo.geolocalizacion.dto.*;
+import com.monitoreo.geolocalizacion.entities.Coordinador;
+import com.monitoreo.geolocalizacion.entities.*;
 import com.monitoreo.geolocalizacion.enums.EstadoRutaEnum;
 import com.monitoreo.geolocalizacion.enums.TipoCoordenadaEnum;
 import com.monitoreo.geolocalizacion.rest.CalculadorRutaAEstrella;
@@ -187,4 +181,34 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
 		alerta.setFecha(LocalDateTime.now());
 		this.entityManager.persist(alerta);
     }
+
+	/**
+	 * Elimina un vehículo por su ID y todas las entidades relacionadas si se ha definido en la base de datos.
+	 *
+	 * @param idVehiculo ID del vehículo a eliminar.
+	 */
+	@Transactional
+	public void eliminarVehiculo(Long idVehiculo) {
+		try{
+			// this.entityManager.op
+			this.entityManager.createQuery("DELETE FROM Vehiculo vh WHERE vh.id = :idVehiculo")
+					.setParameter("idVehiculo",idVehiculo)
+					.executeUpdate();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	@Transactional
+	public Long guardarVehiculo(VehiculoDTO datosIn) {
+		Vehiculo vehiculo = new Vehiculo();
+		TipoVehiculo tipoVehiculo = new TipoVehiculo();
+		tipoVehiculo.setId(datosIn.getIdTipoVehiculo());
+		vehiculo.setTipoVehiculo(tipoVehiculo);
+		vehiculo.setMarca(datosIn.getMarca());
+		vehiculo.setModelo(datosIn.getModelo());
+		vehiculo.setNombre(datosIn.getNombre());
+		this.entityManager.persist(vehiculo);
+		return vehiculo.getId();
+	}
 }

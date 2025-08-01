@@ -3,10 +3,10 @@ package com.monitoreo.geolocalizacion.service;
 import com.monitoreo.geolocalizacion.conexiones.RepositorioCoordinador;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
-import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.entities.Coordinador;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.monitoreo.geolocalizacion.entidades.RutasCalculadas;
+import com.monitoreo.geolocalizacion.entities.RutasCalculadas;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -151,5 +151,9 @@ public class AdministrarCoordinador {
         Set<String> setKey = this.redisTemplate.opsForSet().members(idKeyReferencia);
         if(setKey.isEmpty()) return null;
         return setKey.stream().findFirst().orElse(null);
+    }
+
+    public void eliminarVehiculo(String idVehiculo) {
+        this.redisTemplate.delete("veh:" + idVehiculo + ":coords");
     }
 }
