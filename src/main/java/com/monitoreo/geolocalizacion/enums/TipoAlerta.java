@@ -1,0 +1,13 @@
+package com.monitoreo.geolocalizacion.enums;
+
+public enum TipoAlerta {
+    SENAL_GPS_PERDIDA,
+    DESVIACION_RUTA,
+    COORDENADA_DUPLICADA,
+    FUERA_DE_LIMITE,
+    VEHICULO_INACTIVO_PROLONGADO,
+    LIMITE_ERRORES_SUPERADO,
+    REDIS_NO_DISPONIBLE,
+    CONFLICTO_RUTA,
+    ERROR_DESCONOCIDO
+}

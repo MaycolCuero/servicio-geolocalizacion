@@ -1,9 +1,11 @@
 package com.monitoreo.geolocalizacion.service;
 
+import com.monitoreo.geolocalizacion.dto.AlertaInDTO;
 import com.monitoreo.geolocalizacion.dto.PuntoReferencia;
 import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
+import com.monitoreo.geolocalizacion.entities.Alerta;
 import com.monitoreo.geolocalizacion.entities.Coordenada;
 import com.monitoreo.geolocalizacion.entities.Ruta;
 import com.monitoreo.geolocalizacion.entities.Vehiculo;
@@ -174,7 +176,15 @@ public class ServicioGeolocalizacionApplication implements ServicioGeolocalizaci
      *
      * @param datosIn Objeto {@link RutaDTO} con la información necesaria para generar una alerta.
      */
-    public void guardarAlerta(RutaDTO datosIn) {
-
+	@Transactional
+    public void guardarAlerta(AlertaInDTO datosIn) {
+		Vehiculo vehiculo = new Vehiculo();
+		vehiculo.setId(datosIn.getIdVehiculo());
+		Alerta alerta = new Alerta();
+		alerta.setVehiculo(vehiculo);
+		alerta.setTipo(datosIn.getTiopAlerta().name());
+		alerta.setMensaje(datosIn.getMensaje());
+		alerta.setFecha(LocalDateTime.now());
+		this.entityManager.persist(alerta);
     }
 }

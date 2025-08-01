@@ -1,5 +1,6 @@
 package com.monitoreo.geolocalizacion.rest;
 
+import com.monitoreo.geolocalizacion.dto.AlertaInDTO;
 import com.monitoreo.geolocalizacion.dto.RutaDTO;
 import com.monitoreo.geolocalizacion.dto.ServicioGeolocalizacionInDTO;
 import com.monitoreo.geolocalizacion.entidades.Coordinador;
@@ -63,4 +64,11 @@ public interface ServicioGeolocalizacionRest {
     @ResponseBody
     @PostMapping("/guardarRuta")
     Long guardarRuta(@RequestBody RutaDTO datosIn);
+
+    /**
+     * Método encargado de guardar las alertas enviadas por los vehículos
+     * @param datosIn DTO con los datos necesarios para registrar una alerta
+     */
+    @PostMapping("/guardarAlerta")
+    void guardarAlerta(@RequestBody AlertaInDTO datosIn);
 }
